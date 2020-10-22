@@ -11,7 +11,7 @@ from torch.utils.data.dataset import random_split
 class NYUDepth(Dataset):
     """https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html"""
 
-    def __init__(self, root_dir, image_set='train', frames_per_sample=3, resize=0.05, img_transform=None, target_transform=None):
+    def __init__(self, root_dir, image_set='train', frames_per_sample=1, resize=0.5, img_transform=None, target_transform=None):
         """
         Parameters:
             root_dir (string): Root directory of the dumped NYU-Depth dataset.
@@ -21,6 +21,7 @@ class NYUDepth(Dataset):
         """
         self.root_dir = root_dir
         self.image_set = image_set
+
         self.img_transform = transforms.Compose([transforms.Grayscale(),
                                                  transforms.Resize((round(640*resize), round(480*resize))),
                                                  transforms.ToTensor()])

@@ -13,7 +13,7 @@ class DepthMap(pl.LightningModule):
             self,
             lr: float = 0.01,
             num_classes: int = 1,
-            input_channels: int = 5,
+            input_channels: int = 1,
             num_layers: int = 5,
             features_start: int = 64,
             bilinear: bool = False
@@ -46,8 +46,6 @@ class DepthMap(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         img, target = batch
-        #img = img.float()
-        #target = target.long()
         out = self(img)
         loss_val = F.mse_loss(out.squeeze(), target.squeeze())
         return {'val_loss': loss_val}
@@ -65,6 +63,10 @@ class DepthMap(pl.LightningModule):
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
+        parser.add_argument("--data_dir", type=str, default='.', help="path to nyu depth data")
+        parser.add_argument("--resize", type=float, default=0.5, help="percent to downsample images")
+        parser.add_argument("--input_channels", type=int, default=1, help="number of frames to use as input")
+        parser.add_argument("--num_classes", type=int, default=1)
         parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
         parser.add_argument("--lr", type=float, default=0.01, help="adam: learning rate")
         parser.add_argument("--num_layers", type=int, default=5, help="number of layers on u-net")
@@ -74,18 +76,32 @@ class DepthMap(pl.LightningModule):
 
         return parser
 
-dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data', batch_size=2)
-model = DepthMap(num_classes=1, input_channels=3)
-
-# train
-trainer = pl.Trainer(fast_dev_run=True)
-trainer.fit(model, dm)
-
-
-# if __name__ == '__main__':
-#     dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data', batch_size=2)
-#     model = DepthMap(num_classes=1, input_channels=5)
+# dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data', batch_size=2)
+# model = DepthMap(num_classes=1, input_channels=3)
 #
-#     # train
-#     trainer = pl.Trainer(fast_dev_run=True)
-#     trainer.fit(model, dm)
+# # train
+# trainer = pl.Trainer(fast_dev_run=True)
+# trainer.fit(model, dm)
+
+
+if __name__ == '__main__':
+    pl.seed_everything(1234)
+
+    parser = ArgumentParser()
+
+    # trainer args
+    parser = pl.Trainer.add_argparse_args(parser)
+
+    # model args
+    parser = DepthMap.add_model_specific_args(parser)
+    args = parser.parse_args()
+
+    # data
+    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=args.input_channels, resize=args.resize)
+
+    # model
+    model = DepthMap(**args.__dict__)
+
+    # train
+    trainer = pl.Trainer().from_argparse_args(args)
+    trainer.fit(model, dm)
