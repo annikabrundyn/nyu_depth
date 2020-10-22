@@ -5,12 +5,13 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import random
-
+import pytorch_lightning as pl
+from torch.utils.data.dataset import random_split
 
 class NYUDepth(Dataset):
     """https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html"""
 
-    def __init__(self, root_dir, image_set='train', frames_per_sample=5, img_transform=None, target_transform=None):
+    def __init__(self, root_dir, image_set='train', frames_per_sample=3, resize=0.05, img_transform=None, target_transform=None):
         """
         Parameters:
             root_dir (string): Root directory of the dumped NYU-Depth dataset.
@@ -21,8 +22,10 @@ class NYUDepth(Dataset):
         self.root_dir = root_dir
         self.image_set = image_set
         self.img_transform = transforms.Compose([transforms.Grayscale(),
+                                                 transforms.Resize((round(640*resize), round(480*resize))),
                                                  transforms.ToTensor()])
-        self.target_transform = transforms.Compose([transforms.ToTensor()])
+        self.target_transform = transforms.Compose([transforms.Resize((round(640*resize), round(480*resize))),
+                                                    transforms.ToTensor()])
         self.images = []
         self.targets = []
         self.videos = {}
@@ -45,12 +48,8 @@ class NYUDepth(Dataset):
         self.all_samples = []
         for key, value in self.videos.items():
             self.videos[key].sort()
-            # sample overlap size
-            step_size = 1
+            step_size = 1 # sample overlap size
             self.all_samples += ([(key, self.videos[key][i:i+self.frames_per_sample]) for i in range(0, len(self.videos[key])-self.frames_per_sample, step_size)])
-            #self.videos[key] = samples_list
-            #sample_path = f"data/nyu2_{image_set}/{key}/"
-            #all_samples.append((key))
 
         # shuffle
         random.shuffle(self.all_samples)
@@ -100,9 +99,59 @@ class NYUDepth(Dataset):
         return image_tensor, target
 
 
-d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data')
-loader = DataLoader(d, batch_size=32)
-for img, target in loader:
-    print(img.shape)
-    print(target.shape)
-    break
+class NYUDepthDataModule(pl.LightningDataModule):
+    def __init__(
+            self,
+            data_dir: str,
+            val_split: float = 0.2,
+            test_split: float = 0,
+            num_workers: int = 16,
+            batch_size: int = 32,
+            seed: int = 42,
+            *args,
+            **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.data_dir = data_dir if data_dir is not None else os.getcwd()
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.seed = seed
+
+        dataset = NYUDepth(self.data_dir)
+
+        val_len = round(val_split * len(dataset))
+        test_len = round(test_split * len(dataset))
+        train_len = len(dataset) - val_len - test_len
+
+        self.trainset, self.valset, self.testset = random_split(dataset,
+                                                                lengths=[train_len, val_len, test_len],
+                                                                generator=torch.Generator().manual_seed(self.seed))
+    def train_dataloader(self):
+        loader = DataLoader(self.trainset,
+                            batch_size=self.batch_size,
+                            shuffle=True,
+                            num_workers=self.num_workers)
+        return loader
+
+    def val_dataloader(self):
+        loader = DataLoader(self.valset,
+                            batch_size=self.batch_size,
+                            shuffle=False,
+                            num_workers=self.num_workers)
+        return loader
+
+    # def test_dataloader(self):
+    #     loader = DataLoader(self.testset,
+    #                         batch_size=self.batch_size,
+    #                         shuffle=False,
+    #                         num_workers=self.num_workers)
+    #     return loader
+
+# dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data')
+
+# d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data')
+# loader = DataLoader(d, batch_size=32)
+# for img, target in loader:
+#     print(img.shape)
+#     print(target.shape)
+#     break
