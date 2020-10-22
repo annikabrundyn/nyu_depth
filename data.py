@@ -50,6 +50,7 @@ class NYUDepth(Dataset):
 		if self.transforms is not None:
 			image, target = self.transforms(image, target)
 		return image, target
+	
 d = NYUDepth('/Users/williamfalcon/Desktop/data')
 loader = DataLoader(d, batch_size=32)
 for b in loader:
