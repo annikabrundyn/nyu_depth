@@ -3,6 +3,7 @@ from argparse import ArgumentParser, Namespace
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
+import torchvision
 
 from unet import UNet
 from data import NYUDepthDataModule
@@ -16,6 +17,7 @@ class DepthMap(pl.LightningModule):
             num_layers: int = 5,
             features_start: int = 64,
             bilinear: bool = False,
+            output_img_freq : int = 100,
             **kwargs
     ):
 
@@ -27,6 +29,7 @@ class DepthMap(pl.LightningModule):
         self.features_start = features_start
         self.bilinear = bilinear
         self.lr = lr
+        self.output_img_freq
 
         self.net = UNet(num_classes=num_classes,
                         input_channels=input_channels,
@@ -37,9 +40,11 @@ class DepthMap(pl.LightningModule):
     def forward(self, x):
         return self.net(x)
 
-    def training_step(self, batch, batch_nb):
+    def training_step(self, batch, batch_idx):
         img, target = batch
         out = self(img)
+        if batch_idx % self.output_img_freq == 0:
+            self._log_images(target, out, step_name='train')
         loss_val = F.mse_loss(out.squeeze(), target.squeeze())
         self.log('train_loss', loss_val, on_epoch=True)
         return loss_val
@@ -47,6 +52,8 @@ class DepthMap(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         img, target = batch
         out = self(img)
+        if batch_idx % self.output_img_freq == 0:
+            self._log_images(target, out, step_name='valid')
         loss_val = F.mse_loss(out.squeeze(), target.squeeze())
         self.log('valid_loss', loss_val, on_step=True)
 
@@ -54,6 +61,17 @@ class DepthMap(pl.LightningModule):
         opt = torch.optim.Adam(self.net.parameters(), lr=self.lr)
         #sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=10)
         return [opt]
+
+    def _log_images(self, y, y_hat, step_name, limit=1):
+        # TODO: Randomly select image from batch
+        y = y[:limit]
+        y_hat = y_hat[:limit]
+
+        pred_images = torchvision.utils.make_grid(y_hat)
+        target_images = torchvision.utils.make_grid(y)
+
+        self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
+        self.logger.experiment.add_image(f'{step_name}_target', target_images, self.trainer.global_step)
 
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -63,6 +81,7 @@ class DepthMap(pl.LightningModule):
         parser.add_argument("--input_channels", type=int, default=1, help="number of frames to use as input")
         parser.add_argument("--num_classes", type=int, default=1)
         parser.add_argument("--batch_size", type=int, default=32, help="size of the batches")
+        parser.add_argument("--output_img_freq", type=int, default=100)
         parser.add_argument("--lr", type=float, default=0.001, help="adam: learning rate")
         parser.add_argument("--num_layers", type=int, default=5, help="number of layers on u-net")
         parser.add_argument("--features_start", type=float, default=64, help="number of features in first layer")
