@@ -42,19 +42,19 @@ class DepthMap(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         img, target = batch
-        out = self(img)
+        pred = self(img)
         if batch_idx % self.output_img_freq == 0:
-            self._log_images(target, out, step_name='train')
-        loss_val = F.mse_loss(out.squeeze(), target.squeeze())
+            self._log_images(target, pred, step_name='train')
+        loss_val = F.mse_loss(pred.squeeze(), target.squeeze())
         self.log('train_loss', loss_val, on_epoch=True)
         return loss_val
 
     def validation_step(self, batch, batch_idx):
         img, target = batch
-        out = self(img)
+        pred = self(img)
         if batch_idx % self.output_img_freq == 0:
-            self._log_images(target, out, step_name='valid')
-        loss_val = F.mse_loss(out.squeeze(), target.squeeze())
+            self._log_images(target, pred, step_name='valid')
+        loss_val = F.mse_loss(pred.squeeze(), target.squeeze())
         self.log('valid_loss', loss_val, on_step=True)
 
     def configure_optimizers(self):
@@ -62,16 +62,17 @@ class DepthMap(pl.LightningModule):
         #sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=10)
         return [opt]
 
-    def _log_images(self, y, y_hat, step_name, limit=1):
+    def _log_images(self, target, pred, step_name, limit=1):
         # TODO: Randomly select image from batch
-        y = y[:limit]
-        y_hat = y_hat[:limit]
+        target = target[:limit]
+        pred = pred[:limit]
 
-        pred_images = torchvision.utils.make_grid(y_hat)
-        target_images = torchvision.utils.make_grid(y)
+        target_images = torchvision.utils.make_grid(target)
+        pred_images = torchvision.utils.make_grid(pred)
 
-        self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
         self.logger.experiment.add_image(f'{step_name}_target', target_images, self.trainer.global_step)
+        self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
+
 
     @staticmethod
     def add_model_specific_args(parent_parser):
