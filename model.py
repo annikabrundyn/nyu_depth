@@ -29,7 +29,7 @@ class DepthMap(pl.LightningModule):
         self.features_start = features_start
         self.bilinear = bilinear
         self.lr = lr
-        self.output_img_freq
+        self.output_img_freq = output_img_freq
 
         self.net = UNet(num_classes=num_classes,
                         input_channels=input_channels,
