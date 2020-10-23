@@ -161,7 +161,11 @@ class NYUDepthDataModule(pl.LightningDataModule):
 
 #d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data/')
 
-# d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data')
+if __name__ == '__main__':
+    print("start")
+    d = NYUDepth(data_dir = "/opt/datastore")
+    print("ran")
+    print(len(d))
 # loader = DataLoader(d, batch_size=32)
 # for img, target in loader:
 #     print(img.shape)
