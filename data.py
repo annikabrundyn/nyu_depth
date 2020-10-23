@@ -11,7 +11,13 @@ from torch.utils.data.dataset import random_split
 class NYUDepth(Dataset):
     """https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html"""
 
-    def __init__(self, root_dir, image_set='train', frames_per_sample=1, resize=0.5, img_transform=None, target_transform=None):
+    def __init__(self,
+                 root_dir,
+                 image_set='train',
+                 frames_per_sample=1,
+                 resize=1,
+                 img_transform=None,
+                 target_transform=None):
         """
         Parameters:
             root_dir (string): Root directory of the dumped NYU-Depth dataset.
@@ -22,10 +28,12 @@ class NYUDepth(Dataset):
         self.root_dir = root_dir
         self.image_set = image_set
 
+        new_height = round(480*resize)
+        new_width = round(640*resize)
         self.img_transform = transforms.Compose([transforms.Grayscale(),
-                                                 transforms.Resize((round(480*resize), round(640*resize))),
+                                                 transforms.Resize((new_height, new_width)),
                                                  transforms.ToTensor()])
-        self.target_transform = transforms.Compose([transforms.Resize((round(480*resize), round(640*resize))),
+        self.target_transform = transforms.Compose([transforms.Resize((new_height, new_width)),
                                                     transforms.ToTensor()])
         #self.images = []
         #self.targets = []
@@ -82,11 +90,13 @@ class NYUDepth(Dataset):
         sample = self.all_samples[index]
         video_name = sample[0]
         frames = sample[1]
-        sample_path = f"data/nyu2_{self.image_set}/{video_name}/"
+        #sample_path = f"data/nyu2_{self.image_set}/{video_name}/"
 
         images = []
         for frame in frames:
-            img_path = sample_path + str(frame) + ".jpg"
+            img_path = f"{root}/nyu2_{image_set}/{video_name}/{frame}.jpg"
+            #img_path = os.path.join(self.root_dir, f"nyu2_{self.image_set}", f"{video_name}", f"{frame}.jpg")
+            print(img_path)
             image = Image.open(img_path)
             image = self.img_transform(image)
             images.append(image)
@@ -94,7 +104,9 @@ class NYUDepth(Dataset):
         image_tensor = torch.stack(images)
         image_tensor = torch.squeeze(image_tensor, 1)
 
-        target_path = sample_path + str(frames[-1]) + ".png"
+        target_path = f"{root}/nyu2_{image_set}/{video_name}/{frames[-1]}.png"
+        #target_path = os.path.join(self.root_dir, f"nyu2_{self.image_set}", f"{video_name}", f"{frames[-1]}.jpg")
+        #target_path = sample_path + str(frames[-1]) + ".png"
         target = Image.open(target_path)
         target = self.target_transform(target)
 

@@ -11,7 +11,7 @@ from data import NYUDepthDataModule
 class DepthMap(pl.LightningModule):
     def __init__(
             self,
-            lr: float = 0.01,
+            lr: float = 0.001,
             num_classes: int = 1,
             input_channels: int = 1,
             num_layers: int = 5,
@@ -65,11 +65,11 @@ class DepthMap(pl.LightningModule):
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument("--data_dir", type=str, default='.', help="path to nyu depth data")
-        parser.add_argument("--resize", type=float, default=0.5, help="percent to downsample images")
+        parser.add_argument("--resize", type=float, default=1, help="percent to downsample images")
         parser.add_argument("--input_channels", type=int, default=1, help="number of frames to use as input")
         parser.add_argument("--num_classes", type=int, default=1)
-        parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
-        parser.add_argument("--lr", type=float, default=0.01, help="adam: learning rate")
+        parser.add_argument("--batch_size", type=int, default=32, help="size of the batches")
+        parser.add_argument("--lr", type=float, default=0.001, help="adam: learning rate")
         parser.add_argument("--num_layers", type=int, default=5, help="number of layers on u-net")
         parser.add_argument("--features_start", type=float, default=64, help="number of features in first layer")
         parser.add_argument("--bilinear", action='store_true', default=False,
