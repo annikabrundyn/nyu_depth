@@ -52,8 +52,8 @@ class DepthMap(pl.LightningModule):
 
     def configure_optimizers(self):
         opt = torch.optim.Adam(self.net.parameters(), lr=self.lr)
-        sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=10)
-        return [opt], [sch]
+        #sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=10)
+        return [opt]
 
     @staticmethod
     def add_model_specific_args(parent_parser):
