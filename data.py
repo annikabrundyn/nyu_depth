@@ -6,7 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import random
 import pytorch_lightning as pl
-from torch.utils.data.dataset import random_split
+from torch.utils.data import random_split
 
 class NYUDepth(Dataset):
 
