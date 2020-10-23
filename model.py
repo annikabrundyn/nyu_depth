@@ -67,7 +67,7 @@ class DepthMap(pl.LightningModule):
 
     def _log_images(self, target, pred, step_name, limit=1):
         # TODO: Randomly select image from batch
-        random_idx = random.randint(0, self.batch_size-1)
+        random_idx = random.randint(0, 3)
         target = target[random_idx]
         pred = pred[random_idx]
 
