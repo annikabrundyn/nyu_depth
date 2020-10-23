@@ -155,10 +155,8 @@ class NYUDepthDataModule(pl.LightningDataModule):
 
 
 if __name__ == '__main__':
-    print("start")
     #d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data/')
     d = NYUDepth(root_dir = "/opt/datastore")
-    print("ran")
     print(len(d))
 
     #dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data/', batch_size=10)

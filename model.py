@@ -46,7 +46,7 @@ class DepthMap(pl.LightningModule):
         if batch_idx % self.output_img_freq == 0:
             self._log_images(target, pred, step_name='train')
         loss_val = F.mse_loss(pred.squeeze(), target.squeeze())
-        self.log('train_loss', loss_val, on_epoch=True)
+        self.log('train_loss', loss_val, on_step=True)
         return loss_val
 
     def validation_step(self, batch, batch_idx):
@@ -55,7 +55,7 @@ class DepthMap(pl.LightningModule):
         if batch_idx % self.output_img_freq == 0:
             self._log_images(target, pred, step_name='valid')
         loss_val = F.mse_loss(pred.squeeze(), target.squeeze())
-        self.log('valid_loss', loss_val, on_step=True)
+        self.log('valid_loss', loss_val, on_epoch=True)
 
     def configure_optimizers(self):
         opt = torch.optim.Adam(self.net.parameters(), lr=self.lr)
