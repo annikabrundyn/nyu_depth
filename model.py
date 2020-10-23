@@ -85,7 +85,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # data
-    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=args.input_channels, resize=args.resize, batch_size=args.batch_size)
+    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=args.input_channels,
+                            resize=args.resize,
+                            batch_size=args.batch_size)
 
     # sanity checks
     print("Length of dataset:", len(dm.dataset))
