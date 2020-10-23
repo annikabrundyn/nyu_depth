@@ -4,7 +4,6 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchvision
-import random
 
 from unet import UNet
 from data import NYUDepthDataModule
@@ -68,9 +67,8 @@ class DepthMap(pl.LightningModule):
 
     def _log_images(self, target, pred, step_name, limit=1):
         # TODO: Randomly select image from batch
-        random_idx = random.randint(0, 3)
-        target = target[random_idx]
-        pred = pred[random_idx]
+        target = target[:limit]
+        pred = pred[:limit]
 
         target_images = torchvision.utils.make_grid(target)
         pred_images = torchvision.utils.make_grid(pred)
@@ -115,9 +113,9 @@ if __name__ == '__main__':
                             batch_size=args.batch_size)
 
     # sanity checks
-    print("Length of dataset:", len(dm.dataset))
-    print("Length of trainset:", len(dm.trainset))
-    print("Length of validset:", len(dm.valset))
+    print("size of dataset:", len(dm.dataset))
+    print("size of trainset:", len(dm.trainset))
+    print("size of validset:", len(dm.valset))
 
     # model
     model = DepthMap(**args.__dict__)
