@@ -135,8 +135,8 @@ class NYUDepthDataModule(pl.LightningDataModule):
         train_len = len(dataset) - val_len - test_len
 
         self.trainset, self.valset, self.testset = random_split(dataset,
-                                                                lengths=[train_len, val_len, test_len],
-                                                                generator=torch.Generator().manual_seed(self.seed))
+                                                                lengths=[train_len, val_len, test_len])
+                                                                #generator=torch.Generator().manual_seed(self.seed))
     def train_dataloader(self):
         loader = DataLoader(self.trainset,
                             batch_size=self.batch_size,
