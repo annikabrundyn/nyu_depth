@@ -33,17 +33,26 @@ class NYUDepth(Dataset):
         self.frames_per_sample = frames_per_sample
         img_list = self.read_image_list(os.path.join(root_dir, '{:s}.csv'.format(image_set)))
         print("Img list len:", len(img_list))
+        print("img first few img list entries", img_list[0:5])
 
         for (img_filename, target_filename) in img_list:
-            if os.path.isfile(img_filename) and os.path.isfile(target_filename):
-                #self.images.append(img_filename)
-                #self.targets.append(target_filename)
-                key, jpg = img_filename.split('/')[2:]
-                frame_num = jpg.split('.')[0]
-                if key in self.videos:
-                    self.videos[key].append(int(frame_num))
-                else:
-                    self.videos[key] = [int(frame_num)]
+            key, jpg = img_filename.split('/')[2:]
+            frame_num = jpg.split('.')[0]
+            if key in self.videos:
+                self.videos[key].append(int(frame_num))
+            else:
+                self.videos[key] = [int(frame_num)]
+            # if os.path.isfile(img_filename) and os.path.isfile(target_filename):
+            #     #self.images.append(img_filename)
+            #     #self.targets.append(target_filename)
+            #     key, jpg = img_filename.split('/')[2:]
+            #     frame_num = jpg.split('.')[0]
+            #     if key in self.videos:
+            #         self.videos[key].append(int(frame_num))
+            #     else:
+            #         self.videos[key] = [int(frame_num)]
+
+        print(len(self.videos))
 
         # sort the frames and split into video snippets
         # TODO: add random dropping of frames
@@ -166,9 +175,16 @@ class NYUDepthDataModule(pl.LightningDataModule):
 
 if __name__ == '__main__':
     print("start")
+    #d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data/')
     d = NYUDepth(root_dir = "/opt/datastore")
     print("ran")
     print(len(d))
+
+    dm = NYUDepthDataModule('/opt/datastore', batch_size=10)
+    print(len(dm.trainset))
+    print(len(dm.valset))
+    print(len(dm.train_dataloader()))
+    print(len(dm.val_dataloader()))
 # loader = DataLoader(d, batch_size=32)
 # for img, target in loader:
 #     print(img.shape)
