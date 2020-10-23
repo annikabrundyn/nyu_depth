@@ -22,39 +22,25 @@ class NYUDepth(Dataset):
 
         new_height = round(480*resize)
         new_width = round(640*resize)
+
         self.img_transform = transforms.Compose([transforms.Grayscale(),
                                                  transforms.Resize((new_height, new_width)),
                                                  transforms.ToTensor()])
         self.target_transform = transforms.Compose([transforms.Resize((new_height, new_width)),
                                                     transforms.ToTensor()])
-        #self.images = []
-        #self.targets = []
+
         self.videos = {}
         self.frames_per_sample = frames_per_sample
         img_list = self.read_image_list(os.path.join(root_dir, '{:s}.csv'.format(image_set)))
-        print("Img list len:", len(img_list))
-        print("img first few img list entries", img_list[0:5])
 
         for (img_filename, target_filename) in img_list:
-            #print(img_filename)
-            #print(os.path.isfile(img_filename))
+            # ANNIKA NTS: removed the if statement checking that the img file and target file exists
             key, jpg = img_filename.split('/')[2:]
             frame_num = jpg.split('.')[0]
             if key in self.videos:
                 self.videos[key].append(int(frame_num))
             else:
                 self.videos[key] = [int(frame_num)]
-            # if os.path.isfile(img_filename) and os.path.isfile(target_filename):
-            #     #self.images.append(img_filename)
-            #     #self.targets.append(target_filename)
-            #     key, jpg = img_filename.split('/')[2:]
-            #     frame_num = jpg.split('.')[0]
-            #     if key in self.videos:
-            #         self.videos[key].append(int(frame_num))
-            #     else:
-            #         self.videos[key] = [int(frame_num)]
-
-        print(len(self.videos))
 
         # sort the frames and split into video snippets
         # TODO: add random dropping of frames
@@ -95,13 +81,10 @@ class NYUDepth(Dataset):
         sample = self.all_samples[index]
         video_name = sample[0]
         frames = sample[1]
-        #sample_path = f"data/nyu2_{self.image_set}/{video_name}/"
 
         images = []
         for frame in frames:
-            #img_path = f"{self.root_dir}/nyu2_{self.image_set}/{video_name}/{frame}.jpg"
             img_path = os.path.join(self.root_dir, 'nyu2_{}'.format(self.image_set), video_name, '{}.jpg'.format(frame))
-            #img_path = os.path.join(self.root_dir, f"nyu2_{self.image_set}", f"{video_name}", f"{frame}.jpg")
             image = Image.open(img_path)
             image = self.img_transform(image)
             images.append(image)
@@ -110,9 +93,6 @@ class NYUDepth(Dataset):
         image_tensor = torch.squeeze(image_tensor, 1)
 
         target_path = os.path.join(self.root_dir, 'nyu2_{}'.format(self.image_set), video_name, '{}.png'.format(frames[-1]))
-        #target_path = f"{self.root}/nyu2_{self.image_set}/{video_name}/{frames[-1]}.png"
-        #target_path = os.path.join(self.root_dir, f"nyu2_{self.image_set}", f"{video_name}", f"{frames[-1]}.jpg")
-        #target_path = sample_path + str(frames[-1]) + ".png"
         target = Image.open(target_path)
         target = self.target_transform(target)
 
@@ -187,8 +167,3 @@ if __name__ == '__main__':
     print(len(dm.valset))
     print(len(dm.train_dataloader()))
     print(len(dm.val_dataloader()))
-# loader = DataLoader(d, batch_size=32)
-# for img, target in loader:
-#     print(img.shape)
-#     print(target.shape)
-#     break
