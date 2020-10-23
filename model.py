@@ -5,7 +5,6 @@ import torch
 import torch.nn.functional as F
 
 from unet import UNet
-
 from data import NYUDepthDataModule
 
 class DepthMap(pl.LightningModule):
@@ -76,13 +75,6 @@ class DepthMap(pl.LightningModule):
                             help="whether to use bilinear interpolation or transposed")
 
         return parser
-
-# dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data', batch_size=2)
-# model = DepthMap(num_classes=1, input_channels=3)
-#
-# # train
-# trainer = pl.Trainer(fast_dev_run=True)
-# trainer.fit(model, dm)
 
 
 if __name__ == '__main__':

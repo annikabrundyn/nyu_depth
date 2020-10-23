@@ -5,12 +5,6 @@ import torch.nn.functional as F
 
 class UNet(nn.Module):
     """
-    Paper: `U-Net: Convolutional Networks for Biomedical Image Segmentation
-    <https://arxiv.org/abs/1505.04597>`_
-    Paper authors: Olaf Ronneberger, Philipp Fischer, Thomas Brox
-    Implemented by:
-        - `Annika Brundyn <https://github.com/annikabrundyn>`_
-        - `Akshay Kulkarni <https://github.com/akshaykvnit>`_
     Args:
         num_classes: Number of output classes required
         num_layers: Number of layers in each side of U-net (default 5)

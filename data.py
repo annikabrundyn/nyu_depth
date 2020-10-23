@@ -9,7 +9,6 @@ import pytorch_lightning as pl
 from torch.utils.data.dataset import random_split
 
 class NYUDepth(Dataset):
-    """https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html"""
 
     def __init__(self,
                  root_dir,
@@ -18,13 +17,6 @@ class NYUDepth(Dataset):
                  resize=1,
                  img_transform=None,
                  target_transform=None):
-        """
-        Parameters:
-            root_dir (string): Root directory of the dumped NYU-Depth dataset.
-            image_set (string, optional): Select the image_set to use, ``train``, ``val``
-            transform (callable, optional): Optional transform to be applied
-                on a sample.
-        """
         self.root_dir = root_dir
         self.image_set = image_set
 
