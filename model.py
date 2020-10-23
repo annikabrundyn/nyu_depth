@@ -9,6 +9,7 @@ import random
 from unet import UNet
 from data import NYUDepthDataModule
 
+
 class DepthMap(pl.LightningModule):
     def __init__(
             self,
