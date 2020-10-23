@@ -23,20 +23,20 @@ class NYUDepth(Dataset):
         self.image_set = image_set
 
         self.img_transform = transforms.Compose([transforms.Grayscale(),
-                                                 transforms.Resize((round(640*resize), round(480*resize))),
+                                                 transforms.Resize((round(480*resize), round(640*resize))),
                                                  transforms.ToTensor()])
-        self.target_transform = transforms.Compose([transforms.Resize((round(640*resize), round(480*resize))),
+        self.target_transform = transforms.Compose([transforms.Resize((round(480*resize), round(640*resize))),
                                                     transforms.ToTensor()])
-        self.images = []
-        self.targets = []
+        #self.images = []
+        #self.targets = []
         self.videos = {}
         self.frames_per_sample = frames_per_sample
         img_list = self.read_image_list(os.path.join(root_dir, '{:s}.csv'.format(image_set)))
 
         for (img_filename, target_filename) in img_list:
             if os.path.isfile(img_filename) and os.path.isfile(target_filename):
-                self.images.append(img_filename)
-                self.targets.append(target_filename)
+                #self.images.append(img_filename)
+                #self.targets.append(target_filename)
                 key, jpg = img_filename.split('/')[2:]
                 frame_num = jpg.split('.')[0]
                 if key in self.videos:
@@ -76,7 +76,7 @@ class NYUDepth(Dataset):
         return img_list
 
     def __len__(self):
-        return len(self.images)
+        return len(self.all_samples)
 
     def __getitem__(self, index):
         sample = self.all_samples[index]
@@ -90,8 +90,9 @@ class NYUDepth(Dataset):
             image = Image.open(img_path)
             image = self.img_transform(image)
             images.append(image)
+
         image_tensor = torch.stack(images)
-        image_tensor = torch.squeeze(image_tensor)
+        image_tensor = torch.squeeze(image_tensor, 1)
 
         target_path = sample_path + str(frames[-1]) + ".png"
         target = Image.open(target_path)
@@ -104,6 +105,8 @@ class NYUDepthDataModule(pl.LightningDataModule):
     def __init__(
             self,
             data_dir: str,
+            frames_per_sample: int = 1,
+            resize: float = 0.5,
             val_split: float = 0.2,
             test_split: float = 0,
             num_workers: int = 16,
@@ -114,11 +117,13 @@ class NYUDepthDataModule(pl.LightningDataModule):
     ):
         super().__init__(*args, **kwargs)
         self.data_dir = data_dir if data_dir is not None else os.getcwd()
+        self.frames_per_sample = frames_per_sample
+        self.resize = resize
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.seed = seed
 
-        dataset = NYUDepth(self.data_dir)
+        dataset = NYUDepth(self.data_dir, frames_per_sample=self.frames_per_sample, resize=self.resize)
 
         val_len = round(val_split * len(dataset))
         test_len = round(test_split * len(dataset))
@@ -148,7 +153,7 @@ class NYUDepthDataModule(pl.LightningDataModule):
     #                         num_workers=self.num_workers)
     #     return loader
 
-# dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data')
+#d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data/')
 
 # d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data')
 # loader = DataLoader(d, batch_size=32)

@@ -16,7 +16,8 @@ class DepthMap(pl.LightningModule):
             input_channels: int = 1,
             num_layers: int = 5,
             features_start: int = 64,
-            bilinear: bool = False
+            bilinear: bool = False,
+            **kwargs
     ):
 
         super().__init__()
@@ -97,7 +98,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # data
-    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=args.input_channels, resize=args.resize)
+    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=args.input_channels, resize=args.resize, batch_size=args.batch_size)
 
     # model
     model = DepthMap(**args.__dict__)
