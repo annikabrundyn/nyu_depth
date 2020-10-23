@@ -173,7 +173,6 @@ class NYUDepthDataModule(pl.LightningDataModule):
     #                         num_workers=self.num_workers)
     #     return loader
 
-#d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data/')
 
 if __name__ == '__main__':
     print("start")

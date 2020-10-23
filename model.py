@@ -41,19 +41,14 @@ class DepthMap(pl.LightningModule):
         img, target = batch
         out = self(img)
         loss_val = F.mse_loss(out.squeeze(), target.squeeze())
-        log_dict = {'train_loss': loss_val}
-        return {'loss': loss_val, 'log': log_dict, 'progress_bar': log_dict}
+        self.log('train_loss', loss_val, on_epoch=True)
+        return loss_val
 
     def validation_step(self, batch, batch_idx):
         img, target = batch
         out = self(img)
         loss_val = F.mse_loss(out.squeeze(), target.squeeze())
-        return {'val_loss': loss_val}
-
-    def validation_epoch_end(self, outputs):
-        loss_val = torch.stack([x['val_loss'] for x in outputs]).mean()
-        log_dict = {'val_loss': loss_val}
-        return {'log': log_dict, 'val_loss': log_dict['val_loss'], 'progress_bar': log_dict}
+        self.log('valid_loss', loss_val, on_step=True)
 
     def configure_optimizers(self):
         opt = torch.optim.Adam(self.net.parameters(), lr=self.lr)
@@ -104,4 +99,4 @@ if __name__ == '__main__':
 
     # train
     trainer = pl.Trainer().from_argparse_args(args)
-    trainer.fit(model, dm)
+    trainer.fit(model, dm.train_dataloader(), dm.val_dataloader())
