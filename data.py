@@ -86,7 +86,7 @@ class NYUDepth(Dataset):
 
         images = []
         for frame in frames:
-            img_path = f"{root}/nyu2_{image_set}/{video_name}/{frame}.jpg"
+            img_path = f"{self.root_dir}/nyu2_{self.image_set}/{video_name}/{frame}.jpg"
             #img_path = os.path.join(self.root_dir, f"nyu2_{self.image_set}", f"{video_name}", f"{frame}.jpg")
             print(img_path)
             image = Image.open(img_path)
@@ -96,7 +96,7 @@ class NYUDepth(Dataset):
         image_tensor = torch.stack(images)
         image_tensor = torch.squeeze(image_tensor, 1)
 
-        target_path = f"{root}/nyu2_{image_set}/{video_name}/{frames[-1]}.png"
+        target_path = f"{self.root}/nyu2_{self.image_set}/{video_name}/{frames[-1]}.png"
         #target_path = os.path.join(self.root_dir, f"nyu2_{self.image_set}", f"{video_name}", f"{frames[-1]}.jpg")
         #target_path = sample_path + str(frames[-1]) + ".png"
         target = Image.open(target_path)
