@@ -1,12 +1,14 @@
 import os
-import math
+import random
+
 import torch
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-import random
-import pytorch_lightning as pl
 from torch.utils.data import random_split
+
+import pytorch_lightning as pl
+
 
 class NYUDepth(Dataset):
 
@@ -16,25 +18,33 @@ class NYUDepth(Dataset):
                  frames_per_sample=1,
                  resize=1,
                  img_transform=None,
-                 target_transform=None):
+                 target_transform=None
+                 ):
         self.root_dir = root_dir
         self.image_set = image_set
 
         new_height = round(480*resize)
         new_width = round(640*resize)
 
-        self.img_transform = transforms.Compose([transforms.Grayscale(),
-                                                 transforms.Resize((new_height, new_width)),
-                                                 transforms.ToTensor()])
-        self.target_transform = transforms.Compose([transforms.Resize((new_height, new_width)),
-                                                    transforms.ToTensor()])
+        if not img_transform:
+            self.img_transform = transforms.Compose([transforms.Grayscale(),
+                                                     transforms.Resize((new_height, new_width)),
+                                                     transforms.ToTensor()])
+        else:
+            self.img_transform = img_transform
 
+        if not target_transform:
+            self.target_transform = transforms.Compose([transforms.Resize((new_height, new_width)),
+                                                        transforms.ToTensor()])
+        else:
+            self.target_transform = target_transform
+
+        # create dict with each video name (of diff. scenes) as a key and a list of corresponding frames for that video
         self.videos = {}
         self.frames_per_sample = frames_per_sample
         img_list = self.read_image_list(os.path.join(root_dir, '{:s}.csv'.format(image_set)))
 
         for (img_filename, target_filename) in img_list:
-            # ANNIKA NTS: removed the if statement checking that the img file and target file exists
             key, jpg = img_filename.split('/')[2:]
             frame_num = jpg.split('.')[0]
             if key in self.videos:
@@ -42,8 +52,8 @@ class NYUDepth(Dataset):
             else:
                 self.videos[key] = [int(frame_num)]
 
-        # sort the frames and split into video snippets
-        # TODO: add random dropping of frames
+        # sort the frames and create samples containing k frames per sample
+        # TODO: add random dropping of frames - reduce correlation between samples
         self.all_samples = []
         for key, value in self.videos.items():
             self.videos[key].sort()
@@ -106,7 +116,6 @@ class NYUDepthDataModule(pl.LightningDataModule):
             frames_per_sample: int = 1,
             resize: float = 0.5,
             val_split: float = 0.2,
-            test_split: float = 0,
             num_workers: int = 4,
             batch_size: int = 32,
             seed: int = 42,
@@ -124,7 +133,6 @@ class NYUDepthDataModule(pl.LightningDataModule):
         self.dataset = NYUDepth(self.data_dir, frames_per_sample=self.frames_per_sample, resize=self.resize)
 
         val_len = int(val_split * len(self.dataset))
-        #test_len = round(test_split * len(dataset))
         train_len = len(self.dataset) - val_len
 
         print(train_len)
@@ -152,16 +160,3 @@ class NYUDepthDataModule(pl.LightningDataModule):
     #                         shuffle=False,
     #                         num_workers=self.num_workers)
     #     return loader
-
-
-if __name__ == '__main__':
-    #d = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data/')
-    d = NYUDepth(root_dir = "/opt/datastore")
-    print(len(d))
-
-    #dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data/', batch_size=10)
-    dm = NYUDepthDataModule('/opt/datastore', batch_size=10)
-    print(len(dm.trainset))
-    print(len(dm.valset))
-    print(len(dm.train_dataloader()))
-    print(len(dm.val_dataloader()))
