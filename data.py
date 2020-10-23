@@ -36,6 +36,8 @@ class NYUDepth(Dataset):
         print("img first few img list entries", img_list[0:5])
 
         for (img_filename, target_filename) in img_list:
+            #print(img_filename)
+            #print(os.path.isfile(img_filename))
             key, jpg = img_filename.split('/')[2:]
             frame_num = jpg.split('.')[0]
             if key in self.videos:
@@ -180,6 +182,7 @@ if __name__ == '__main__':
     print("ran")
     print(len(d))
 
+    #dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data/', batch_size=10)
     dm = NYUDepthDataModule('/opt/datastore', batch_size=10)
     print(len(dm.trainset))
     print(len(dm.valset))

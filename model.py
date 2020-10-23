@@ -97,11 +97,11 @@ if __name__ == '__main__':
     print("Length of trainset:", len(dm.trainset))
     print("Length of validset:", len(dm.valset))
 
-    for b in iter(dm.train_dataloader()):
+    print("len of train loader:", len(dm.train_dataloader()))
 
     # model
-    # model = DepthMap(**args.__dict__)
+    model = DepthMap(**args.__dict__)
 
     # train
-    # trainer = pl.Trainer().from_argparse_args(args)
-    # trainer.fit(model, dm)
+    trainer = pl.Trainer().from_argparse_args(args)
+    trainer.fit(model, dm)
