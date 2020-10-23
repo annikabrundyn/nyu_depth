@@ -32,6 +32,7 @@ class NYUDepth(Dataset):
         self.videos = {}
         self.frames_per_sample = frames_per_sample
         img_list = self.read_image_list(os.path.join(root_dir, '{:s}.csv'.format(image_set)))
+        print("Img list len:", len(img_list))
 
         for (img_filename, target_filename) in img_list:
             if os.path.isfile(img_filename) and os.path.isfile(target_filename):
@@ -51,6 +52,7 @@ class NYUDepth(Dataset):
             self.videos[key].sort()
             step_size = 1 # sample overlap size
             self.all_samples += ([(key, self.videos[key][i:i+self.frames_per_sample]) for i in range(0, len(self.videos[key])-self.frames_per_sample, step_size)])
+        print("len of all samples:", len(self.all_samples))
 
         # shuffle
         random.shuffle(self.all_samples)
@@ -128,13 +130,13 @@ class NYUDepthDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
         self.seed = seed
 
-        dataset = NYUDepth(self.data_dir, frames_per_sample=self.frames_per_sample, resize=self.resize)
+        self.dataset = NYUDepth(self.data_dir, frames_per_sample=self.frames_per_sample, resize=self.resize)
 
-        val_len = round(val_split * len(dataset))
+        val_len = round(val_split * len(self.dataset))
         #test_len = round(test_split * len(dataset))
-        train_len = len(dataset) - val_len
+        train_len = len(self.dataset) - val_len
 
-        self.trainset, self.valset = random_split(dataset, lengths=[train_len, val_len]) #generator=torch.Generator().manual_seed(self.seed))
+        self.trainset, self.valset = random_split(self.dataset, lengths=[train_len, val_len]) #generator=torch.Generator().manual_seed(self.seed))
 
     def train_dataloader(self):
         loader = DataLoader(self.trainset,

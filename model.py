@@ -92,6 +92,11 @@ if __name__ == '__main__':
     # data
     dm = NYUDepthDataModule(args.data_dir, frames_per_sample=args.input_channels, resize=args.resize, batch_size=args.batch_size)
 
+    # sanity checks
+    print("Length of dataset:", len(dm.dataset))
+    print("Length of trainset:", len(dm.trainset))
+    print("Length of validset:", len(dm.valset))
+
     # model
     model = DepthMap(**args.__dict__)
 
