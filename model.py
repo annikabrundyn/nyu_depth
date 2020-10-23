@@ -94,8 +94,6 @@ if __name__ == '__main__':
     print("Length of trainset:", len(dm.trainset))
     print("Length of validset:", len(dm.valset))
 
-    print("len of train loader:", len(dm.train_dataloader()))
-
     # model
     model = DepthMap(**args.__dict__)
 
