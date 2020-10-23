@@ -132,11 +132,14 @@ class NYUDepthDataModule(pl.LightningDataModule):
 
         self.dataset = NYUDepth(self.data_dir, frames_per_sample=self.frames_per_sample, resize=self.resize)
 
-        val_len = round(val_split * len(self.dataset))
+        val_len = int(val_split * len(self.dataset))
         #test_len = round(test_split * len(dataset))
         train_len = len(self.dataset) - val_len
 
-        self.trainset, self.valset = random_split(self.dataset, lengths=[train_len, val_len]) #generator=torch.Generator().manual_seed(self.seed))
+        print(train_len)
+        print(val_len)
+
+        self.trainset, self.valset = random_split(self.dataset, lengths=[train_len, val_len])
 
     def train_dataloader(self):
         loader = DataLoader(self.trainset,
@@ -163,7 +166,7 @@ class NYUDepthDataModule(pl.LightningDataModule):
 
 if __name__ == '__main__':
     print("start")
-    d = NYUDepth(data_dir = "/opt/datastore")
+    d = NYUDepth(root_dir = "/opt/datastore")
     print("ran")
     print(len(d))
 # loader = DataLoader(d, batch_size=32)
