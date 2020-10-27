@@ -8,7 +8,6 @@ from torchvision import transforms
 from torch.utils.data import random_split
 
 import pytorch_lightning as pl
-from utils import colorize
 from torchvision.utils import save_image
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -187,10 +186,6 @@ plt.imsave('plasma_dm.png', target.numpy().squeeze(), cmap='plasma')
 plt.imsave('inferno_dm.png', target.numpy().squeeze(), cmap='inferno')
 plt.imsave('magma_dm.png', target.numpy().squeeze(), cmap='magma')
 plt.imsave('cividis_dm.png', target.numpy().squeeze(), cmap='cividis')
-
-
-#plt.imsave('colorize_cmap_dm.png', colorize(target.numpy().squeeze()))
-#save_image(colorize(target), 'colorize_dm.jpeg', normalize=False)
 
 
 cm = plt.get_cmap('gist_rainbow')
