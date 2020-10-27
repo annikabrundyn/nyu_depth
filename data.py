@@ -8,6 +8,8 @@ from torchvision import transforms
 from torch.utils.data import random_split
 
 import pytorch_lightning as pl
+from utils import colorize
+from torchvision.utils import save_image
 
 
 class NYUDepth(Dataset):
@@ -160,3 +162,11 @@ class NYUDepthDataModule(pl.LightningDataModule):
     #                         shuffle=False,
     #                         num_workers=self.num_workers)
     #     return loader
+
+
+dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data/', batch_size=1)
+dl = dm.train_dataloader()
+
+img, target = next(iter(dl))
+save_image(img, normalize=False)
+save_image(colorize(target), normalize=False)
