@@ -159,31 +159,3 @@ class NYUDepthDataModule(pl.LightningDataModule):
     #                         shuffle=False,
     #                         num_workers=self.num_workers)
     #     return loader
-
-
-# dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data/', batch_size=1)
-# dl = dm.train_dataloader()
-#
-# img, target = next(iter(dl))
-# img = img[0]
-# target = target[0]
-# print(img.shape)
-# print(target.shape)
-# new = 1 - target
-# save_image(img, 'original_image.png', normalize=False)
-# save_image(target, 'original_dm.png', normalize=False)
-# save_image(new, 'new_dm.png', normalize=False)
-#
-# plt.imsave('plt_original_dm.png', target.numpy().squeeze())
-# plt.imsave('new_dm.png', new.numpy().squeeze())
-# plt.imsave('spectral_dm.png', new.numpy().squeeze(), cmap='Spectral')
-# plt.imsave('viridis_dm.png', new.numpy().squeeze(), cmap='viridis')
-# plt.imsave('plasma_dm.png', new.numpy().squeeze(), cmap='plasma')
-# plt.imsave('inferno_dm.png', new.numpy().squeeze(), cmap='inferno')
-# plt.imsave('magma_dm.png', new.numpy().squeeze(), cmap='magma')
-# plt.imsave('cividis_dm.png', new.numpy().squeeze(), cmap='cividis')
-#
-#
-# cm = plt.get_cmap('gist_rainbow')
-# colored_image = cm(target.numpy().squeeze())
-# Image.fromarray((colored_image[:, :, :3] * 255).astype(np.uint8)).save('test.png')
