@@ -2,16 +2,12 @@ import os
 import random
 
 import torch
-from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from torch.utils.data import random_split
 
 import pytorch_lightning as pl
-from torchvision.utils import save_image
-import matplotlib.pyplot as plt
-from PIL import Image
-import numpy as np
+
 
 class NYUDepth(Dataset):
 

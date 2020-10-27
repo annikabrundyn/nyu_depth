@@ -10,6 +10,7 @@ from data import NYUDepthDataModule
 
 import matplotlib.pyplot as plt
 
+
 class DepthMap(pl.LightningModule):
     def __init__(
             self,
