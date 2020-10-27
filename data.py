@@ -10,7 +10,9 @@ from torch.utils.data import random_split
 import pytorch_lightning as pl
 from utils import colorize
 from torchvision.utils import save_image
-
+import matplotlib.pyplot as plt
+from PIL import Image
+import numpy as np
 
 class NYUDepth(Dataset):
 
@@ -168,5 +170,29 @@ dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data/', batch_
 dl = dm.train_dataloader()
 
 img, target = next(iter(dl))
-save_image(img, normalize=False)
-save_image(colorize(target), normalize=False)
+img = img[0]
+target = target[0]
+print(img.shape)
+print(target.shape)
+new = 1 - target
+save_image(img, 'original_image.png', normalize=False)
+save_image(target, 'original_dm.png', normalize=False)
+save_image(new, 'new_dm.png', normalize=False)
+
+plt.imsave('plt_original_dm.png', target.numpy().squeeze())
+plt.imsave('t_plt_original_dm.png', target.permute(1, 2, 0).numpy().squeeze())
+plt.imsave('spectral_dm.png', target.numpy().squeeze(), cmap='Spectral')
+plt.imsave('viridis_dm.png', target.numpy().squeeze(), cmap='viridis')
+plt.imsave('plasma_dm.png', target.numpy().squeeze(), cmap='plasma')
+plt.imsave('inferno_dm.png', target.numpy().squeeze(), cmap='inferno')
+plt.imsave('magma_dm.png', target.numpy().squeeze(), cmap='magma')
+plt.imsave('cividis_dm.png', target.numpy().squeeze(), cmap='cividis')
+
+
+#plt.imsave('colorize_cmap_dm.png', colorize(target.numpy().squeeze()))
+#save_image(colorize(target), 'colorize_dm.jpeg', normalize=False)
+
+
+cm = plt.get_cmap('gist_rainbow')
+colored_image = cm(target.numpy().squeeze())
+Image.fromarray((colored_image[:, :, :3] * 255).astype(np.uint8)).save('test.png')
