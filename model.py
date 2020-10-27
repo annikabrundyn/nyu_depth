@@ -8,6 +8,7 @@ import torchvision
 from unet import UNet
 from data import NYUDepthDataModule
 
+import matplotlib.pyplot as plt
 
 class DepthMap(pl.LightningModule):
     def __init__(
@@ -70,11 +71,24 @@ class DepthMap(pl.LightningModule):
         target = target[:limit]
         pred = pred[:limit]
 
-        target_images = torchvision.utils.make_grid(target)
-        pred_images = torchvision.utils.make_grid(pred)
+        torch_target = torchvision.utils.make_grid(target)
+        torch_pred = torchvision.utils.make_grid(pred)
 
-        self.logger.experiment.add_image(f'{step_name}_target', target_images, self.trainer.global_step)
-        self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
+        torch_new = 1 - torch_pred
+        plt_pred_raw = plt.imshow(torch_pred.numpy().squeeze())
+        plt_pred_new = plt.imshow(torch_new.numpy().squeeze())
+        plt_pred_spectral = plt.imshow(torch_new.numpy().squeeze(), cmap='Spectral')
+        plt_pred_magma = plt.imshow(torch_new.numpy().squeeze(), cmap='magma')
+
+        self.logger.experiment.add_image(f'{step_name}_torch_target', torch_target, self.trainer.global_step)
+        self.logger.experiment.add_image(f'{step_name}_torch_pred', torch_pred, self.trainer.global_step)
+        self.logger.experiment.add_figure(f'{step_name}_plt_pred_raw', plt_pred_raw, self.trainer.global_step)
+        self.logger.experiment.add_figure(f'{step_name}_plt_pred_new', plt_pred_new, self.trainer.global_step)
+        self.logger.experiment.add_figure(f'{step_name}_plt_pred_spectral', plt_pred_spectral, self.trainer.global_step)
+        self.logger.experiment.add_figure(f'{step_name}_plt_plt_pred_magma', plt_pred_magma, self.trainer.global_step)
+
+        #self.logger.experiment.add_image(f'{step_name}_target', target_images, self.trainer.global_step)
+        #self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
 
 
     @staticmethod
