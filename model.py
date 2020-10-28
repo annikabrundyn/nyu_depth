@@ -125,7 +125,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # data
-    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=(args.input_channels + 1),  #1 frame will be dropped
+    if args.input_channels > 2:
+        no_frames = args.input_channels + 1    #1 frame will be dropped
+    else:
+        no_frames = args.input_channels
+    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=no_frames,
                             resize=args.resize,
                             batch_size=args.batch_size)
 
