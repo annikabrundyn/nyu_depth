@@ -93,43 +93,6 @@ class DepthMap(pl.LightningModule):
         self.logger.experiment.add_figure(f'{step_name}_target_dm_color', color_target_dm, self.trainer.global_step)
         self.logger.experiment.add_figure(f'{step_name}_pred_dm_color', color_pred_dm, self.trainer.global_step)
 
-        # add one color image
-        # print(target.shape)
-        # inverse_target = 1-target
-        # npimg = target.squeeze().detach().numpy()
-        # print(npimg.shape)
-        # fig = plt.figure()
-        # plt.imshow(npimg, cmap="Spectral")
-
-
-        #print(target.shape)
-        #plt_target = target.squeeze(0).detach().numpy()
-        #fig = plt.figure()
-        #plt.imshow(plt_target, cmap="Greys")
-        #self._matplotlib_imshow(torch_target, one_channel=True)
-        #self._matplotlib_imshow(torch_pred, one_channel=True)
-
-        #self.logger.experiment.add_figure(f'{step_name}_plt_torch_target', fig, self.trainer.global_step)
-        #self.logger.experiment.add_image(f'{step_name}_torch_target', torch_target, self.trainer.global_step)
-        #self.logger.experiment.add_figure(f'{step_name}_plt_torch_pred', torch_pred, self.trainer.global_step)
-
-        #torch_new = 1 - torch_pred
-        #print(torch_pred.shape)
-        #print(pred.shape)
-        #print(pred.squeeze(0).shape)
-        #print(pred.squeeze(0).permute(1,2,0).shape)
-
-        #plt_pred_raw = plt.imshow(pred.squeeze(0).permute(1, 2, 0).detach())
-        #plt_pred_new = plt.imshow(torch_new.numpy().squeeze())
-        #plt_pred_spectral = plt.imshow(torch_new.numpy().squeeze(), cmap='Spectral')
-        #plt_pred_magma = plt.imshow(torch_new.numpy().squeeze(), cmap='magma')
-
-
-        #self.logger.experiment.add_figure(f'{step_name}_plt_pred_raw', plt_pred_raw, self.trainer.global_step)
-        # self.logger.experiment.add_figure(f'{step_name}_plt_pred_new', plt_pred_new, self.trainer.global_step)
-        # self.logger.experiment.add_figure(f'{step_name}_plt_pred_spectral', plt_pred_spectral, self.trainer.global_step)
-        # self.logger.experiment.add_figure(f'{step_name}_plt_plt_pred_magma', plt_pred_magma, self.trainer.global_step)
-
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
