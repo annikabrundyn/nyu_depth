@@ -14,7 +14,7 @@ class NYUDepth(Dataset):
     def __init__(self,
                  root_dir,
                  image_set='train',
-                 frames_per_sample=5,
+                 frames_per_sample=1,
                  resize=1,
                  img_transform=None,
                  target_transform=None
@@ -125,7 +125,7 @@ class NYUDepthDataModule(pl.LightningDataModule):
     def __init__(
             self,
             data_dir: str,
-            frames_per_sample: int = 5,
+            frames_per_sample: int = 1,
             resize: float = 0.5,
             val_split: float = 0.2,
             num_workers: int = 4,
