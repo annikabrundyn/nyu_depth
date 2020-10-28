@@ -83,8 +83,8 @@ class DepthMap(pl.LightningModule):
         pred = pred[:limit]
 
         # Log input/original image
-        input_images = torchvision.utils.make_grid(img)
-        print(input_images.shape)
+        img = img.permute(1, 0, 2, 3)
+        input_images = torchvision.utils.make_grid(img, nrow=1)
         self.logger.experiment.add_image(f'{step_name}_input_img', input_images, self.trainer.global_step)
 
         # Log colorized depth maps - using magma colormap
