@@ -84,9 +84,10 @@ class DepthMap(pl.LightningModule):
 
         # Log input/original image
         input_images = torchvision.utils.make_grid(img)
+        print(input_images.shape)
         self.logger.experiment.add_image(f'{step_name}_input_img', input_images, self.trainer.global_step)
 
-        # Log colorized depth maps
+        # Log colorized depth maps - using magma colormap
         color_target_dm = self._matplotlib_imshow(target)
         color_pred_dm = self._matplotlib_imshow(pred)
 
@@ -124,7 +125,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # data
-    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=args.input_channels,
+    dm = NYUDepthDataModule(args.data_dir, frames_per_sample=(args.input_channels + 1),  #1 frame will be dropped
                             resize=args.resize,
                             batch_size=args.batch_size)
 
