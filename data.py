@@ -7,14 +7,14 @@ from torchvision import transforms
 from torch.utils.data import random_split
 
 import pytorch_lightning as pl
-
+from PIL import Image
 
 class NYUDepth(Dataset):
 
     def __init__(self,
                  root_dir,
                  image_set='train',
-                 frames_per_sample=1,
+                 frames_per_sample=5,
                  resize=1,
                  img_transform=None,
                  target_transform=None
@@ -52,12 +52,25 @@ class NYUDepth(Dataset):
                 self.videos[key] = [int(frame_num)]
 
         # sort the frames and create samples containing k frames per sample
-        # TODO: add random dropping of frames - reduce correlation between samples
         self.all_samples = []
         for key, value in self.videos.items():
-            self.videos[key].sort()
-            step_size = 1 # sample overlap size
-            self.all_samples += ([(key, self.videos[key][i:i+self.frames_per_sample]) for i in range(0, len(self.videos[key])-self.frames_per_sample, step_size)])
+            value.sort()
+
+            if self.frames_per_sample > 1:
+                step_size = 1 # sample overlap size
+                for i in range(0, len(value)-self.frames_per_sample, step_size):
+                    frames = value[i:i+self.frames_per_sample]
+
+                    # Randomly drop one frame to reduce correlation between samples
+                    if self.frames_per_sample > 2:
+                        rand_idx = random.randint(0, self.frames_per_sample - 2)
+                        _ = frames.pop(rand_idx)
+
+                    self.all_samples += [(key, frames)]
+
+            # only using single frame
+            else:
+                self.all_samples += ([(key, [i]) for i in self.videos[key]])
         print("len of all samples:", len(self.all_samples))
 
         # shuffle
@@ -112,7 +125,7 @@ class NYUDepthDataModule(pl.LightningDataModule):
     def __init__(
             self,
             data_dir: str,
-            frames_per_sample: int = 1,
+            frames_per_sample: int = 5,
             resize: float = 0.5,
             val_split: float = 0.2,
             num_workers: int = 4,
@@ -159,3 +172,6 @@ class NYUDepthDataModule(pl.LightningDataModule):
     #                         shuffle=False,
     #                         num_workers=self.num_workers)
     #     return loader
+
+#ds = NYUDepth('/Users/annikabrundyn/Developer/nyu_depth/data/')
+#dm = NYUDepthDataModule('/Users/annikabrundyn/Developer/nyu_depth/data/')
