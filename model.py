@@ -100,7 +100,7 @@ class DepthMap(pl.LightningModule):
         parser.add_argument("--data_dir", type=str, default='.', help="path to nyu depth data")
         parser.add_argument("--resize", type=float, default=1, help="percent to downsample images")
         parser.add_argument("--input_channels", type=int, default=1, help="number of frames to use as input")
-        parser.add_argument("--num_classes", type=int, default=1)
+        parser.add_argument("--num_classes", type=int, default=1, help="output channels")
         parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
         parser.add_argument("--output_img_freq", type=int, default=100)
         parser.add_argument("--lr", type=float, default=0.001, help="adam: learning rate")
