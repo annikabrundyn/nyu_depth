@@ -71,7 +71,7 @@ class DepthMap(pl.LightningModule):
     def _matplotlib_imshow(self, img, inverse=True, cmap='magma'):
         if inverse:
             img = 1 - img
-        npimg = img.squeeze().detach().numpy()
+        npimg = img.squeeze().detach().cpu().numpy()
         fig = plt.figure()
         plt.imshow(npimg, cmap=cmap)
         return fig
