@@ -68,27 +68,36 @@ class DepthMap(pl.LightningModule):
         #sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=10)
         return [opt]
 
-    def _matplotlib_imshow(self, img, one_channel=False):
-        if one_channel:
-            img = img.mean(dim=0)
-        # img = img / 2 + 0.5     # unnormalize
-        npimg = img.detach().numpy()
-        if one_channel:
-            plt.imshow(npimg, cmap="Greys")
-        else:
-            plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    # def _matplotlib_imshow(self, img, one_channel=False):
+    #     npimg = img.detach().numpy()
+    #     figure = plt.figure()
+    #     if one_channel:
+    #         plt.imshow(npimg.squeeze(0), cmap="Greys")
+    #     else:
+    #         plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    #     return figure
 
     def _log_images(self, target, pred, step_name, limit=1):
         # TODO: Randomly select image from batch
         target = target[:limit]
         pred = pred[:limit]
-        print(pred.shape)
 
-        torch_target = torchvision.utils.make_grid(target)
-        torch_pred = torchvision.utils.make_grid(pred)
+        target_images = torchvision.utils.make_grid(target)
+        pred_images = torchvision.utils.make_grid(pred)
 
-        self._matplotlib_imshow(torch_target, one_channel=True)
-        self._matplotlib_imshow(torch_pred, one_channel=True)
+        self.logger.experiment.add_image(f'{step_name}_target', target_images, self.trainer.global_step)
+        self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
+
+        #print(target.shape)
+        #plt_target = target.squeeze(0).detach().numpy()
+        #fig = plt.figure()
+        #plt.imshow(plt_target, cmap="Greys")
+        #self._matplotlib_imshow(torch_target, one_channel=True)
+        #self._matplotlib_imshow(torch_pred, one_channel=True)
+
+        #self.logger.experiment.add_figure(f'{step_name}_plt_torch_target', fig, self.trainer.global_step)
+        #self.logger.experiment.add_image(f'{step_name}_torch_target', torch_target, self.trainer.global_step)
+        #self.logger.experiment.add_figure(f'{step_name}_plt_torch_pred', torch_pred, self.trainer.global_step)
 
         #torch_new = 1 - torch_pred
         #print(torch_pred.shape)
@@ -101,16 +110,11 @@ class DepthMap(pl.LightningModule):
         #plt_pred_spectral = plt.imshow(torch_new.numpy().squeeze(), cmap='Spectral')
         #plt_pred_magma = plt.imshow(torch_new.numpy().squeeze(), cmap='magma')
 
-        self.logger.experiment.add_image(f'{step_name}_plt_torch_target', torch_target, self.trainer.global_step)
-        self.logger.experiment.add_image(f'{step_name}_plt_torch_pred', torch_pred, self.trainer.global_step)
+
         #self.logger.experiment.add_figure(f'{step_name}_plt_pred_raw', plt_pred_raw, self.trainer.global_step)
         # self.logger.experiment.add_figure(f'{step_name}_plt_pred_new', plt_pred_new, self.trainer.global_step)
         # self.logger.experiment.add_figure(f'{step_name}_plt_pred_spectral', plt_pred_spectral, self.trainer.global_step)
         # self.logger.experiment.add_figure(f'{step_name}_plt_plt_pred_magma', plt_pred_magma, self.trainer.global_step)
-
-        #self.logger.experiment.add_image(f'{step_name}_target', target_images, self.trainer.global_step)
-        #self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
-
 
     @staticmethod
     def add_model_specific_args(parent_parser):
