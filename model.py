@@ -50,7 +50,7 @@ class DepthMap(pl.LightningModule):
         img, target = batch
         pred = self(img)
         if batch_idx % self.output_img_freq == 0:
-            self._log_images(target, pred, step_name='train')
+            self._log_images(img, target, pred, step_name='train')
         loss_val = F.mse_loss(pred.squeeze(), target.squeeze())
         self.log('train_loss', loss_val, on_step=True)
         return loss_val
@@ -59,7 +59,7 @@ class DepthMap(pl.LightningModule):
         img, target = batch
         pred = self(img)
         if batch_idx % self.output_img_freq == 0:
-            self._log_images(target, pred, step_name='valid')
+            self._log_images(img, target, pred, step_name='valid')
         loss_val = F.mse_loss(pred.squeeze(), target.squeeze())
         self.log('valid_loss', loss_val, on_epoch=True)
 
@@ -68,25 +68,39 @@ class DepthMap(pl.LightningModule):
         #sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=10)
         return [opt]
 
-    # def _matplotlib_imshow(self, img, one_channel=False):
-    #     npimg = img.detach().numpy()
-    #     figure = plt.figure()
-    #     if one_channel:
-    #         plt.imshow(npimg.squeeze(0), cmap="Greys")
-    #     else:
-    #         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    #     return figure
+    def _matplotlib_imshow(self, img, inverse=True, cmap='magma'):
+        if inverse:
+            img = 1 - img
+        npimg = img.squeeze().detach().numpy()
+        fig = plt.figure()
+        plt.imshow(npimg, cmap=cmap)
+        return fig
 
-    def _log_images(self, target, pred, step_name, limit=1):
+    def _log_images(self, img, target, pred, step_name, limit=1):
         # TODO: Randomly select image from batch
+        img = img[:limit]
         target = target[:limit]
         pred = pred[:limit]
 
-        target_images = torchvision.utils.make_grid(target)
-        pred_images = torchvision.utils.make_grid(pred)
+        # Log input/original image
+        input_images = torchvision.utils.make_grid(img)
+        self.logger.experiment.add_image(f'{step_name}_input_img', input_images, self.trainer.global_step)
 
-        self.logger.experiment.add_image(f'{step_name}_target', target_images, self.trainer.global_step)
-        self.logger.experiment.add_image(f'{step_name}_predicted', pred_images, self.trainer.global_step)
+        # Log colorized depth maps
+        color_target_dm = self._matplotlib_imshow(target)
+        color_pred_dm = self._matplotlib_imshow(pred)
+
+        self.logger.experiment.add_figure(f'{step_name}_target_dm_color', color_target_dm, self.trainer.global_step)
+        self.logger.experiment.add_figure(f'{step_name}_pred_dm_color', color_pred_dm, self.trainer.global_step)
+
+        # add one color image
+        # print(target.shape)
+        # inverse_target = 1-target
+        # npimg = target.squeeze().detach().numpy()
+        # print(npimg.shape)
+        # fig = plt.figure()
+        # plt.imshow(npimg, cmap="Spectral")
+
 
         #print(target.shape)
         #plt_target = target.squeeze(0).detach().numpy()
