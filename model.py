@@ -129,6 +129,7 @@ if __name__ == '__main__':
         no_frames = args.input_channels + 1    #1 frame will be dropped
     else:
         no_frames = args.input_channels
+    print(no_frames)
     dm = NYUDepthDataModule(args.data_dir, frames_per_sample=no_frames,
                             resize=args.resize,
                             batch_size=args.batch_size)
